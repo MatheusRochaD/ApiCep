@@ -12,14 +12,13 @@ namespace ApiCep.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(cep) || cep.Length != 8)
-                {
-                    throw new InvalidOperationException("Cep inválido.");
-                }
+                if(string.IsNullOrWhiteSpace(cep))
+                cep = cep.Replace("-", "");
+                if (cep.Length != 8)
+                    throw new InvalidOperationException("Cep inválido");
 
                 var retorno = Conexoes.ConsumoApi.Get<Contratos.ViaCep.Response>("https://viacep.com.br/ws/" + cep + "/json/");
                 return StatusCode(200, retorno);
-
             }
             catch (InvalidOperationException ex)
             {
@@ -27,16 +26,17 @@ namespace ApiCep.Controllers
             }
             catch (Exception ex)
             {
-                var log = new Contratos.LogAplicacao.Request();
-                log.NomeAplicacao = "ApiCep";
-                log.NomeMaquina = Environment.MachineName;
-                log.DataHora = DateTime.Now;
-                log.MensagemErro = ex.Message;
-                log.RastreioErro = ex.StackTrace;
-                log.Usuario = Environment.UserName;
-
-                Conexoes.ConsumoApi.Post<string>("https://logaplicacao.aiur.com.br/v1/Logs", log);
-                return StatusCode(500, "Serviço indisponível no momento.");
+                var log = new Contratos.LogAplicacao.Request()
+                {
+                    DataHora = DateTime.Now,
+                    MensagemErro = ex.Message,
+                    NomeAplicacao = "ApiCep",
+                    NomeMaquina = Environment.MachineName,
+                    Usuario = Environment.UserName,
+                    RastreioErro = ex.StackTrace
+                };
+                Conexoes.ConsumoApi.Post<object>("https://logaplicacao.aiur.com.br/v1/Logs", log);
+                return StatusCode(500);
             }
         }
     }
