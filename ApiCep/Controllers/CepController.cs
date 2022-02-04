@@ -13,6 +13,8 @@ namespace ApiCep.Controllers
             try
             {
                 if(string.IsNullOrWhiteSpace(cep))
+                    throw new InvalidOperationException("Cep inválido");
+
                 cep = cep.Replace("-", "");
                 if (cep.Length != 8)
                     throw new InvalidOperationException("Cep inválido");
