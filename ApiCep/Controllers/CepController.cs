@@ -13,11 +13,11 @@ namespace ApiCep.Controllers
             try
             {
                 if(string.IsNullOrWhiteSpace(cep))
-                    throw new InvalidOperationException("Cep inválido");
+                    throw new InvalidOperationException("O cep deve ser informado.");
 
                 cep = cep.Replace("-", "");
                 if (cep.Length != 8)
-                    throw new InvalidOperationException("Cep inválido");
+                    throw new InvalidOperationException("Formato de cep inválido.");
 
                 var retorno = Conexoes.ConsumoApi.Get<Contratos.ViaCep.Response>("https://viacep.com.br/ws/" + cep + "/json/");
                 return StatusCode(200, retorno);
